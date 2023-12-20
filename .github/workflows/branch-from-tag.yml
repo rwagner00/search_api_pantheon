@@ -27,7 +27,9 @@ jobs:
       - name: Print Branch Name
         id: print_branch_name
         run: |
+          echo "findme"
           echo ${BRANCH_NAME}
+          echo "endfindme"
       - name: Check if branch exists
         id: check_branch
         run: |
@@ -47,6 +49,7 @@ jobs:
       - name: Merge changes from current default branch
         if: steps.check_branch.outputs.exists == 'true'
         run: |
+          git fetch
           git checkout origin/${BRANCH_NAME}
           git merge origin/${{ github.event.repository.default_branch }}
           git push origin ${BRANCH_NAME}
