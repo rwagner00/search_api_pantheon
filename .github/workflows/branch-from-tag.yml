@@ -50,9 +50,7 @@ jobs:
         if: steps.check_branch.outputs.exists == 'true'
         run: |
           git fetch
-          git checkout origin/${{ steps.tag_name.outputs.BRANCH_NAME }}
+          git checkout -b origin/${{ steps.tag_name.outputs.BRANCH_NAME }}
           git merge origin/${{ github.event.repository.default_branch }}
           git push origin ${{ steps.tag_name.outputs.BRANCH_NAME }}
-      - name: Create branch from tag
-        run: git branch ${{ steps.tag_name.outputs.BRANCH_NAME }} ${{ github.ref }} && git push origin ${{ steps.tag_name.outputs.BRANCH_NAME }}
 
