@@ -23,7 +23,9 @@ jobs:
         run: |
           FULL_TAG=${GITHUB_REF#refs/tags/}
           MAJOR_MINOR="$(echo $FULL_TAG | cut -d '.' -f 1,2).x"
-          echo "BRANCH_NAME=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+          MAJOR_ONLY="$(echo $FULL_TAG | cut -d '.' -f 1).x"
+          echo "::set-output name=BRANCH_NAME::$MAJOR_MINOR"
+          echo "::set-output name=MAJOR_BRANCH_NAME::$MAJOR_ONLY"
       - name: Check if branch exists
         id: check_branch
         run: |
@@ -40,7 +42,7 @@ jobs:
       - name: Create branch
         if: steps.check_branch.outputs.exists == 'false'
         run: |
-          git checkout -b ${{ steps.tag_name.outputs.BRANCH_NAME }} origin/${{ github.event.repository.default_branch }}
+          git checkout -b ${{ steps.tag_name.outputs.BRANCH_NAME }} origin/${{ steps.tag_name.outputs.MAJOR_BRANCH_NAME }}
           git push origin ${{ steps.tag_name.outputs.BRANCH_NAME }}
 
       - name: Merge changes from current default branch
@@ -48,6 +50,6 @@ jobs:
         run: |
           git fetch
           git checkout -b ${{ steps.tag_name.outputs.BRANCH_NAME }} origin/${{ steps.tag_name.outputs.BRANCH_NAME }}
-          git merge origin/${{ github.event.repository.default_branch }}
+          git merge origin/${{ steps.tag_name.outputs.MAJOR_BRANCH_NAME }}
           git push origin HEAD:${{ steps.tag_name.outputs.BRANCH_NAME }}
 
