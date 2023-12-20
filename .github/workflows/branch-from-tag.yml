@@ -24,8 +24,8 @@ jobs:
           FULL_TAG=${GITHUB_REF#refs/tags/}
           MAJOR_MINOR="$(echo $FULL_TAG | cut -d '.' -f 1,2).x"
           MAJOR_ONLY="$(echo $FULL_TAG | cut -d '.' -f 1).x"
-          echo "::set-output name=BRANCH_NAME::$MAJOR_MINOR"
-          echo "::set-output name=MAJOR_BRANCH_NAME::$MAJOR_ONLY"
+          echo "BRANCH_NAME=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+          echo "MAJOR_BRANCH_NAME=$MAJOR_ONLY" >> $GITHUB_OUTPUT
       - name: Check if branch exists
         id: check_branch
         run: |
@@ -33,7 +33,6 @@ jobs:
           branch_existence=$(git ls-remote --heads origin ${{ steps.tag_name.outputs.BRANCH_NAME }})
           if [[ -z ${branch_existence} ]]; then
             echo "Branch for tag does not exist."
-            echo "::set-output name=exists::false"
             echo "exists=false" >> $GITHUB_OUTPUT
           else
             echo "Branch for tag already exists."
