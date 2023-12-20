@@ -23,9 +23,31 @@ jobs:
         run: |
           FULL_TAG=${GITHUB_REF#refs/tags/}
           MAJOR_MINOR=$(echo $FULL_TAG | cut -d '.' -f 1,2)
-          echo "::set-output name=TAG_NAME::$MAJOR_MINOR"
+          echo "::set-output name=BRANCH_NAME::$MAJOR_MINOR"
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          if git ls-remote --heads origin ${BRANCH_NAME}; then
+            echo "Branch for tag already exists."
+            echo "::set-output name=exists::true"
+          else
+            echo "Branch for tag does not exist."
+            echo "::set-output name=exists::false"
+          fi
+      - name: Create branch
+        if: steps.check_branch.outputs.exists == 'false'
+        run: |
+          git checkout -b ${BRANCH_NAME}
+          git push origin ${BRANCH_NAME}
+
+      - name: Merge changes from current default branch
+        if: steps.check_branch.outputs.exists == 'true'
+        run: |
+          git checkout ${BRANCH_NAME}
+          git merge origin/${{ github.repository.default_branch }}
+          git push origin ${BRANCH_NAME}
       - name: Print the thing
-        run: echo $TAG_NAME
+        run: echo $BRANCH_NAME
       - name: Create branch from tag
-        run: git branch ${{ steps.tag_name.outputs.TAG_NAME }} ${{ github.ref }} && git push origin ${{ steps.tag_name.outputs.TAG_NAME }}
+        run: git branch ${{ steps.tag_name.outputs.BRANCH_NAME }} ${{ github.ref }} && git push origin ${{ steps.tag_name.outputs.BRANCH_NAME }}
 
