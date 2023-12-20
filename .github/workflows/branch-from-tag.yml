@@ -8,7 +8,7 @@ on:
 jobs:
   create-branch:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'pantheon-systems/search_api_pantheon' }}
+    if: ${{ github.repository == 'rwagner00/search_api_pantheon' }}
     env:
       BRANCH: ${{ github.ref_name }}
       WORKSPACE: ${{ github.workspace }}
